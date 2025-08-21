@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drawing RPG - Enemy Encounters</title>
+    <style>
+.ruckus-peek {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    z-index: 1000;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 3px solid #ffd700;
+    animation: peek 4s infinite;
+}
+
+@keyframes peek {
+    0%, 90% { transform: translateX(80px); }
+    5%, 85% { transform: translateX(0); }
+}
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #2d1b3d, #4a2c5a);
+            color: #fff;
+            font-family: Georgia, serif;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #ffd700;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin: 0;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+        }
+
+        .header p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        /* Enemy card styles */
+        .enemy-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .enemy-card {
+            border: 4px solid #d4af37;
+            background: linear-gradient(135deg, #f4e4a6, #e6d28a);
+            padding: 25px;
+            max-width: 350px;
+            min-width: 300px;
+            border-radius: 12px;
+            text-align: center;
+            font-family: 'Georgia', serif;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            color: #5a4037;
+        }
+
+        .enemy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+        }
+
+        .enemy-title {
+            color: #8b4513;
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .enemy-art {
+            font-size: 48px;
+            margin: 15px 0;
+            filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.3));
+        }
+
+        .enemy-description {
+            color: #5a4037;
+            font-size: 14px;
+            line-height: 1.5;
+            background: rgba(255,255,255,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #c8a882;
+            margin-bottom: 15px;
+        }
+
+        /* Upload area styles */
+        .upload-area {
+            margin-top: 15px;
+            padding: 15px;
+            border: 2px dashed #8b4513;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .file-input {
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #8b4513;
+            border-radius: 4px;
+            background: #fff;
+            color: #333;
+            font-size: 12px;
+        }
+
+        .submit-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #219a52;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border: 2px solid #8b4513;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Color variants */
+        .enemy-card.fire {
+            background: linear-gradient(135deg, #ffcccb, #ff6b6b);
+            border-color: #d63031;
+        }
+
+        .enemy-card.ice {
+            background: linear-gradient(135deg, #dff9ff, #74b9ff);
+            border-color: #0984e3;
+        }
+
+        .enemy-card.nature {
+            background: linear-gradient(135deg, #d4edda, #00b894);
+            border-color: #00a085;
+        }
+
+        .enemy-card.dark {
+            background: linear-gradient(135deg, #e8e8e8, #636e72);
+            border-color: #2d3436;
+            color: #2d3436;
+        }
+
+        /* Result area */
+        .result-area {
+            background: rgba(39, 174, 96, 0.2);
+            border: 2px solid #27ae60;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .result-area.success {
+            background: rgba(39, 174, 96, 0.3);
+            color: #1e8449;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .enemy-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .enemy-card {
+                max-width: 90%;
+                min-width: 250px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Drawing RPG</h1>
+        <p>Enemy Encounter System</p>
+        <p style="font-size: 14px; color: #ccc;">Choose an enemy, complete the drawing challenge, and submit your artwork!</p>
+    </div>
+
+    <div class="enemy-grid">
+        <!-- Grid Gremlin -->
+        <div class="enemy-card">
+            <h2 class="enemy-title">📐 Grid Gremlin</h2>
+            <div class="enemy-art">📐👹</div>
+            <div class="enemy-description">
+                <strong>Condition Effect:</strong> "Layout Chaos" - Your sense of order is scrambled!<br><br>
+                <strong>Challenge:</strong> Draw a clean, well-aligned 3-5 panel comic layout to restore order and defeat this gremlin!
+            </div>
+            <div class="upload-area">
+                <input type="file" accept="image/*" class="file-input" onchange="handleFileUpload(this, 'grid')" id="file-grid">
+                <br>
+                <button class="submit-btn" onclick="submitDrawing('grid', 'Grid Gremlin')" id="btn-grid" disabled>Submit Drawing</button>
+                <div id="preview-grid"></div>
+                <div id="result-grid"></div>
+            </div>
+        </div>
+
+        <!-- Bad Air Monster -->
+        <div class="enemy-card fire">
+            <h2 class="enemy-title">💨 Bad Air Monster</h2>
+            <div class="enemy-art">💨👾</div>
+            <div class="enemy-description">
+                <strong>Condition Effect:</strong> "Sticky Gray Tendrils" - Drawing feels sluggish and smudged!<br><br>
+                <strong>Challenge:</strong> Draw fresh, clean air elements like plants, wind, or breezes to clear the air!
+            </div>
+            <div class="upload-area">
+                <input type="file" accept="image/*" class="file-input" onchange="handleFileUpload(this, 'air')" id="file-air">
+                <br>
+                <button class="submit-btn" onclick="submitDrawing('air', 'Bad Air Monster')" id="btn-air" disabled>Submit Drawing</button>
+                <div id="preview-air"></div>
+                <div id="result-air"></div>
+            </div>
+        </div>
+
+        <!-- Margin Marauders -->
+        <div class="enemy-card ice">
+            <h2 class="enemy-title">⚔️ Margin Marauders</h2>
+            <div class="enemy-art">❄️⚔️</div>
+            <div class="enemy-description">
+                <strong>Condition Effect:</strong> "Slice & Dice" - Everything needs strong diagonal elements!<br><br>
+                <strong>Challenge:</strong> Draw a building, object, and creature - each with prominent diagonal lines cutting through them!
+            </div>
+            <div class="upload-area">
+                <input type="file" accept="image/*" class="file-input" onchange="handleFileUpload(this, 'margin')" id="file-margin">
+                <br>
+                <button class="submit-btn" onclick="submitDrawing('margin', 'Margin Marauders')" id="btn-margin" disabled>Submit Drawing</button>
+                <div id="preview-margin"></div>
+                <div id="result-margin"></div>
+            </div>
+        </div>
+
+        <!-- Smudge Gremlin -->
+        <div class="enemy-card nature">
+            <h2 class="enemy-title">🖤 Smudge Gremlin</h2>
+            <div class="enemy-art">🖤👺</div>
+            <div class="enemy-description">
+                <strong>Condition Effect:</strong> "Line Chaos" - Your drawings feel uncontrolled and messy!<br><br>
+                <strong>Challenge:</strong> Embrace the chaos! Create art with intentionally messy lines and turn smudges into beauty!
+            </div>
+            <div class="upload-area">
+                <input type="file" accept="image/*" class="file-input" onchange="handleFileUpload(this, 'smudge')" id="file-smudge">
+                <br>
+                <button class="submit-btn" onclick="submitDrawing('smudge', 'Smudge Gremlin')" id="btn-smudge" disabled>Submit Drawing</button>
+                <div id="preview-smudge"></div>
+                <div id="result-smudge"></div>
+            </div>
+        </div>
+
+        <!-- Notan Wraith -->
+        <div class="enemy-card dark">
+            <h2 class="enemy-title">⚪ Notan Wraith</h2>
+            <div class="enemy-art">⚪⚫</div>
+            <div class="enemy-description">
+                <strong>Condition Effect:</strong> "Lost Balance" - Your compositions feel awkward and unbalanced!<br><br>
+                <strong>Challenge:</strong> Create a strong 2-value (black and white) drawing that shows perfect balance of light and dark!
+            </div>
+            <div class="upload-area">
+                <input type="file" accept="image/*" class="file-input" onchange="handleFileUpload(this, 'notan')" id="file-notan">
+                <br>
+                <button class="submit-btn" onclick="submitDrawing('notan', 'Notan Wraith')" id="btn-notan" disabled>Submit Drawing</button>
+                <div id="preview-notan"></div>
+                <div id="result-notan"></div>
+            </div>
+        </div>
+
+        <!-- The Tangent Toad -->
+        <div class="enemy-card nature">
+            <h2 class="enemy-title">🐸 Tangent Toad</h2>
+            <div class="enemy-art">🐸📏</div>
+            <div class="enemy-description">
+                <strong>Condition Effect:</strong> "Awkward Overlaps" - Lines touch in confusing ways!<br><br>
+                <strong>Challenge:</strong> Draw a scene with clear overlapping elements - make sure nothing creates confusing tangent lines!
+            </div>
+            <div class="upload-area">
+                <input type="file" accept="image/*" class="file-input" onchange="handleFileUpload(this, 'tangent')" id="file-tangent">
+                <br>
+                <button class="submit-btn" onclick="submitDrawing('tangent', 'Tangent Toad')" id="btn-tangent" disabled>Submit Drawing</button>
+                <div id="preview-tangent"></div>
+                <div id="result-tangent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Track uploaded files for each enemy
+        const uploadedFiles = {};
+
+        function handleFileUpload(input, enemyId) {
+            const file = input.files[0];
+            if (file) {
+                // Store the file
+                uploadedFiles[enemyId] = file;
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewContainer = document.getElementById(`preview-${enemyId}`);
+                    previewContainer.innerHTML = `
+                        <img src="${e.target.result}" class="image-preview" alt="Your drawing preview">
+                        <p style="font-size: 12px; margin-top: 5px; color: #666;">✅ Drawing loaded! Ready to submit.</p>
+                    `;
+                };
+                reader.readAsDataURL(file);
+                
+                // Enable submit button
+                document.getElementById(`btn-${enemyId}`).disabled = false;
+            }
+        }
+
+        function submitDrawing(enemyId, enemyName) {
+            const file = uploadedFiles[enemyId];
+            const resultContainer = document.getElementById(`result-${enemyId}`);
+            const submitBtn = document.getElementById(`btn-${enemyId}`);
+            
+            if (!file) {
+                alert('Please select a drawing first!');
+                return;
+            }
+            
+            // Disable button during "processing"
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Evaluating...';
+            
+            // Simulate processing time
+            setTimeout(() => {
+                // Generate random feedback (simulating AI evaluation)
+                const feedbackOptions = [
+                    {
+                        score: Math.floor(Math.random() * 6) + 15, // 15-20
+                        message: "🌟 Excellent work! Your drawing shows great understanding of the challenge!",
+                        xp: Math.floor(Math.random() * 15) + 25
+                    },
+                    {
+                        score: Math.floor(Math.random() * 5) + 10, // 10-14
+                        message: "⚔️ Good effort! You've grasped the core concept with some nice details!",
+                        xp: Math.floor(Math.random() * 10) + 15
+                    },
+                    {
+                        score: Math.floor(Math.random() * 4) + 6, // 6-9
+                        message: "🛡️ Nice try! You're on the right track - keep practicing this technique!",
+                        xp: Math.floor(Math.random() * 8) + 10
+                    }
+                ];
+                
+                const feedback = feedbackOptions[Math.floor(Math.random() * feedbackOptions.length)];
+                
+                resultContainer.innerHTML = `
+                    <div class="result-area success">
+                        <strong>${enemyName} Defeated! 🎉</strong><br>
+                        Score: ${feedback.score}/20<br>
+                        ${feedback.message}<br>
+                        <em>+${feedback.xp} XP earned!</em>
+                    </div>
+                `;
+                
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Another Drawing';
+                
+                // Add some celebration
+                if (feedback.score >= 15) {
+                    setTimeout(() => {
+                        alert(`🎉 Outstanding! You earned ${feedback.xp} XP for that masterpiece!`);
+                    }, 500);
+                }
+                
+            }, 2000); // 2 second "AI evaluation" delay
+        }
+
+        // Add some interactive flair
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add subtle animation to enemy cards on load
+            const cards = document.querySelectorAll('.enemy-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+        });
+    </script>
+<img src="ruckus.png" class="ruckus-peek" alt="Ruckus peeking">
+</body>
+</html>
