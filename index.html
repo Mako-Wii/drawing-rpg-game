@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Drawing RPG - Enemy Encounters</title>
+    <div class="header">
+    <div class="title-decoration">⚔️ 🎨 ⚔️</div>
+    <h1>Drawing RPG</h1>
+    <div class="subtitle">Enemy Encounter System</div>
+    <div class="fancy-border"></div>
+    <p class="description">Choose your foe, accept the challenge, and prove your artistic might!</p>
+    <div class="title-decoration">🖌️ ⚡ 🖌️</div>
+</div>
     <style>
 .ruckus-peek {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    width: 60px;
-    height: 60px;
+    width: 160px;
+    height: 160px;
     z-index: 1000;
     cursor: pointer;
     border-radius: 50%;
@@ -321,6 +326,49 @@
     </div>
 
     <script>
+        // Ruckus commentary arrays
+const ruckusComments = [
+    "Ooh, that looks WAY better than my attempt!",
+    "Can I try drawing next? Pretty please?",
+    "I traded my best pencil for a cookie... totally worth it!",
+    "Your lines are so much straighter than mine!",
+    "I found a really good eraser behind the couch!",
+    "This is more fun than organizing my tool bag!",
+    "Want to see what I doodled on this napkin?",
+    "I bet you could draw me better than I draw me!",
+    "Drawing fights are the BEST kind of fights!",
+    "I wonder if we could make edible art supplies..."
+];
+
+// Add click event to Ruckus
+document.addEventListener('DOMContentLoaded', function() {
+    const ruckus = document.querySelector('.ruckus-peek');
+    if (ruckus) {
+        ruckus.addEventListener('click', function() {
+            showRuckusComment();
+        });
+    }
+});
+
+function showRuckusComment() {
+    const comment = ruckusComments[Math.floor(Math.random() * ruckusComments.length)];
+    
+    // Create speech bubble
+    const bubble = document.createElement('div');
+    bubble.innerHTML = `
+        <div style="position: fixed; bottom: 90px; right: 20px; background: #fff3cd; border: 3px solid #ffd700; border-radius: 15px; padding: 15px; max-width: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.3); z-index: 1001; font-size: 14px; color: #8b4513;">
+            "${comment}"
+            <div style="position: absolute; bottom: -10px; right: 30px; width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid #ffd700;"></div>
+        </div>
+    `;
+    
+    document.body.appendChild(bubble);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        bubble.remove();
+    }, 3000);
+}
         // Track uploaded files for each enemy
         const uploadedFiles = {};
 
@@ -428,5 +476,6 @@
 </body>
 
 </html>
+
 
 
